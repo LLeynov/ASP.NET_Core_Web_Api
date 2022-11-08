@@ -6,10 +6,10 @@
 
         T GetById(TId id);
 
-        int Create(T data);
+        TId Create(T data);
 
-        void Update(T data);
+        bool Update(T data);
 
-        void Delete(T id);
+        bool Delete(TId id);
     }
 }

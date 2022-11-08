@@ -1,6 +1,8 @@
 ﻿using ASP.NET_Core_Web_Api.Models.Requests;
 using ASP.NET_Core_Web_Api.Services;
 using ASP.NET_Core_Web_Api.Services.Impl;
+using Azure.Core;
+using EmployeeService.Data;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
@@ -18,11 +20,10 @@ namespace ASP.NET_Core_Web_Api.Controllers
         }
 
         [HttpPost("employee/create")]
-        public IActionResult Create([FromBody] CreateEmployeeRequest request)
+        public ActionResult<int> Create([FromBody] EmployeeDto request)
         {
-            return Ok(_employeeRepository.Create(new Models.Employee
+            return Ok(_employeeRepository.Create(new Employee
             {
-                DepartmentId = request.DepartmentId,
                 EmployeeTypeId = request.EmployeeTypeId,
                 FirstName = request.FirstName,
                 Patronymic = request.Patronymic,
@@ -32,13 +33,22 @@ namespace ASP.NET_Core_Web_Api.Controllers
         }
 
         [HttpGet("employee/all")]
-        public IActionResult GetAllEmployees()
+        public ActionResult<IList<EmployeeDto>> GetAllEmployees()
         {
-            return Ok(_employeeRepository.GetAll());
+            return Ok(_employeeRepository.GetAll().Select(request =>
+                new EmployeeDto
+                {
+                    EmployeeTypeId = request.EmployeeTypeId,
+                    FirstName = request.FirstName,
+                    Patronymic = request.Patronymic,
+                    Salary = request.Salary,
+                    Surname = request.Surname
+                }
+            ).ToList());
         }
         
-        [HttpGet("employee-by-id/{id}")]
-        public IActionResult GetById([FromRoute] int id)
+        [HttpGet("employee/delete")]
+        public ActionResult<bool> GetById([FromQuery] int id)
         {
             return Ok(_employeeRepository.GetById(id));
         }

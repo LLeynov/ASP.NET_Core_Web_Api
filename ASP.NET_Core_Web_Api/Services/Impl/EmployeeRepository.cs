@@ -1,32 +1,59 @@
-﻿using ASP.NET_Core_Web_Api.Models;
+﻿using System.Collections;
+using ASP.NET_Core_Web_Api.Models;
+using EmployeeService.Data;
 
 namespace ASP.NET_Core_Web_Api.Services.Impl
 {
     public class EmployeeRepository : IEmployeeRepository
     {
+        private readonly EmployeeServiceDbContext _dbContext;
+
+
+        public EmployeeRepository(EmployeeServiceDbContext dbContext)
+        {
+            _dbContext = dbContext;
+        }
+
+
         public IList<Employee> GetAll()
         {
-            throw new NotImplementedException();
+            return _dbContext.Employees.ToList();
         }
 
         public Employee GetById(int id)
         {
-            throw new NotImplementedException();
+            return _dbContext.Employees.FirstOrDefault(et => et.Id == id);
         }
 
         public int Create(Employee data)
         {
-            throw new NotImplementedException();
+            _dbContext.Employees.Add(data);
+            _dbContext.SaveChanges();
+            return data.Id;
         }
 
-        public void Update(Employee data)
+        public bool Update(Employee data)
         {
-            throw new NotImplementedException();
+            Employee employees = GetById(data.Id);
+            if (employees != null)
+            {
+                _dbContext.Employees.Update(employees);
+                _dbContext.SaveChanges();
+                return true;
+            }
+            return false;
         }
 
-        public void Delete(Employee id)
+        public bool Delete(int id)
         {
-            throw new NotImplementedException();
+            Employee employees = GetById(id);
+            if (employees != null)
+            {
+                _dbContext.Employees.Remove(employees);
+                _dbContext.SaveChanges();
+                return true;
+            }
+            return false;
         }
     }
 }

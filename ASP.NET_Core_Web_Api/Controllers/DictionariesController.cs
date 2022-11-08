@@ -1,6 +1,7 @@
 ﻿using ASP.NET_Core_Web_Api.Models.Requests;
 using ASP.NET_Core_Web_Api.Services;
 using ASP.NET_Core_Web_Api.Services.Impl;
+using EmployeeService.Data;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
@@ -16,26 +17,33 @@ namespace ASP.NET_Core_Web_Api.Controllers
         {
             _employeeTypeRepository = employeeTypeRepository;
         }
-       
-        [HttpPost("employee-type/create")]
-        public IActionResult Create([FromBody] CreateEmployeeTypeRequest request)
+
+        [HttpGet("employee-types/all")]
+        public ActionResult<IList<EmployeeTypeDto>> GetAllEmployeeTypes()
         {
-            return Ok(_employeeTypeRepository.Create(new Models.EmployeeType
+            return Ok(_employeeTypeRepository.GetAll().Select(et =>
+                new EmployeeTypeDto
+                {
+                    Id = et.Id,
+                    Description = et.Description
+                }
+            ).ToList());
+        }
+
+
+        [HttpPost("employee-types/create")]
+        public ActionResult<int> CreateEmployeeType([FromQuery] string description)
+        {
+            return Ok(_employeeTypeRepository.Create(new EmployeeType
             {
-                Description = request.Description,
+                Description = description
             }));
         }
 
-        [HttpGet("employee-types/all")]
-        public IActionResult GetAll()
+        [HttpDelete("employee-types/delete")]
+        public ActionResult<bool> DeleteEmployeeType([FromQuery] int id)
         {
-            return Ok(_employeeTypeRepository.GetAll());
-        }
-
-        [HttpGet("employee-type-by-id/{id}")]
-        public IActionResult GetById([FromRoute] int id)
-        {
-            return Ok(_employeeTypeRepository.GetById(id));
+            return Ok(_employeeTypeRepository.Delete(id));
         }
     }
 }

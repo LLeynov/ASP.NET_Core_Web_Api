@@ -1,32 +1,60 @@
-﻿using ASP.NET_Core_Web_Api.Models;
+﻿using System.Collections;
+using ASP.NET_Core_Web_Api.Models;
+using EmployeeService.Data;
+using Microsoft.EntityFrameworkCore;
 
 namespace ASP.NET_Core_Web_Api.Services.Impl
 {
     public class EmployeeTypeRepository : IEmployeeTypeRepository
     {
+        private readonly EmployeeServiceDbContext _dbContext;
+       
+        
+        public EmployeeTypeRepository(EmployeeServiceDbContext dbContext)
+        {
+            _dbContext = dbContext;
+        }
+
+
         public IList<EmployeeType> GetAll()
         {
-            throw new NotImplementedException();
+            return _dbContext.EmployeeTypes.ToList();
         }
 
         public EmployeeType GetById(int id)
         {
-            throw new NotImplementedException();
+            return _dbContext.EmployeeTypes.FirstOrDefault(et => et.Id == id);
         }
 
         public int Create(EmployeeType data)
         {
-            throw new NotImplementedException();
+            _dbContext.EmployeeTypes.Add(data);
+            _dbContext.SaveChanges();
+            return data.Id;
         }
 
-        public void Update(EmployeeType data)
+        public bool Update(EmployeeType data)
         {
-            throw new NotImplementedException();
+            EmployeeType employeeType = GetById(data.Id);
+            if (employeeType != null)
+            {
+                _dbContext.EmployeeTypes.Update(employeeType);
+                _dbContext.SaveChanges();
+                return true;
+            }
+            return false;
         }
 
-        public void Delete(EmployeeType id)
+        public bool Delete(int id)
         {
-            throw new NotImplementedException();
+            EmployeeType employeeType = GetById(id);
+            if (employeeType != null)
+            {
+                _dbContext.EmployeeTypes.Remove(employeeType);
+                _dbContext.SaveChanges();
+                return true;
+            }
+            return false;
         }
     }
 }

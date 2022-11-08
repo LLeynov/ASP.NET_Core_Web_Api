@@ -1,6 +1,7 @@
 ﻿using ASP.NET_Core_Web_Api.Models.Requests;
 using ASP.NET_Core_Web_Api.Services;
 using ASP.NET_Core_Web_Api.Services.Impl;
+using EmployeeService.Data;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
@@ -10,32 +11,39 @@ namespace ASP.NET_Core_Web_Api.Controllers
     [ApiController]
     public class DepartmentController : ControllerBase
     {
-        private readonly IDepartmentRepository _DepartmentRepository;
+        private readonly IDepartmentRepository _departmentRepository;
 
         public DepartmentController(IDepartmentRepository departmentRepository)
         {
-            _DepartmentRepository = departmentRepository;
+            _departmentRepository = departmentRepository;
         }
 
         [HttpPost("department/create")]
-        public IActionResult Create([FromBody] CreateDepartmentRequest request)
+        public ActionResult<int> CreateDepartment([FromQuery] string description)
         {
-            return Ok(_DepartmentRepository.Create(new Models.Department
+            return Ok(_departmentRepository.Create(new Department
             {
-               Description = request.Description,
+                Description = description
             }));
         }
 
 
         [HttpGet("departments/all")]
-        public IActionResult GetAllDepartments()
+        public ActionResult<IList<DepartmentDto>> GetAllDepartments()
         {
-            return Ok(_DepartmentRepository.GetAll());
+            return Ok(_departmentRepository.GetAll().Select(et =>
+                new EmployeeTypeDto
+                {
+                    Id = et.Id,
+                    Description = et.Description
+                }
+            ).ToList());
         }
-        [HttpGet("departments-by-id/{id}")]
-        public IActionResult GetDepartmentById([FromRoute] Guid id)
+       
+        [HttpDelete("department/delete")]
+        public ActionResult<bool> DeleteDepartment([FromQuery] int id)
         {
-            return Ok(_DepartmentRepository.GetById(id));
+            return Ok(_departmentRepository.Delete(id));
         }
     }
 }

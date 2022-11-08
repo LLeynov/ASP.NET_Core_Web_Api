@@ -1,9 +1,9 @@
-﻿namespace ASP.NET_Core_Web_Api.Models
+﻿namespace ASP.NET_Core_Web_Api.Models.Requests
 {
-    public class Employee
+    public class EmployeeDto
     {
         public int Id { get; set; }
-        public int DepartmentId { get; set; }
+        public Guid DepartmentId { get; set; }
         public int EmployeeTypeId { get; set; }
         public string FirstName { get; set; }
         public string Surname { get; set; }
