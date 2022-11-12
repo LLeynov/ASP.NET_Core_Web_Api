@@ -12,6 +12,9 @@ namespace EmployeeService.Data
         public DbSet<Department> Departments { get; set; }
         public DbSet<Employee> Employees { get; set; }
         public DbSet<EmployeeType> EmployeeTypes { get; set; }
+        public DbSet<Account> Accounts { get; set; }
+
+        public DbSet<AccountSessions> AccountSessions { get; set; }
 
         public EmployeeServiceDbContext(DbContextOptions options) : base(options)
         {

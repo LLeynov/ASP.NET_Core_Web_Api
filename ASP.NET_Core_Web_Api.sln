@@ -5,7 +5,9 @@ VisualStudioVersion = 17.3.32929.385
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ASP.NET_Core_Web_Api", "ASP.NET_Core_Web_Api\ASP.NET_Core_Web_Api.csproj", "{110B7F45-ED27-4DFC-85C7-176BDEA3247C}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EmployeeService.Data", "EmployeeService.Data\EmployeeService.Data.csproj", "{136F420F-B350-4F14-9F7C-2C4D9975D6C5}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EmployeeService.Data", "EmployeeService.Data\EmployeeService.Data.csproj", "{136F420F-B350-4F14-9F7C-2C4D9975D6C5}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AccountHelper", "AccountHelper\AccountHelper.csproj", "{876747E6-BB58-4382-AEED-58BB465A8F13}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -21,6 +23,10 @@ Global
 		{136F420F-B350-4F14-9F7C-2C4D9975D6C5}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{136F420F-B350-4F14-9F7C-2C4D9975D6C5}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{136F420F-B350-4F14-9F7C-2C4D9975D6C5}.Release|Any CPU.Build.0 = Release|Any CPU
+		{876747E6-BB58-4382-AEED-58BB465A8F13}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{876747E6-BB58-4382-AEED-58BB465A8F13}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{876747E6-BB58-4382-AEED-58BB465A8F13}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{876747E6-BB58-4382-AEED-58BB465A8F13}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
