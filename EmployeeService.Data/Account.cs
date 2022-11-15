@@ -35,7 +35,7 @@ namespace EmployeeService.Data
         [StringLength(255)]
         public string SecondName { get; set; }
 
-        [InverseProperty(nameof(AccountSessions.Account))]
-        public virtual ICollection<AccountSessions> Sessions { get; set; } = new HashSet<AccountSessions>();
+        [InverseProperty(nameof(AccountSession.Account))]
+        public virtual ICollection<AccountSession> Sessions { get; set; } = new HashSet<AccountSession>();
     }
 }

@@ -19,7 +19,7 @@ namespace AccountHelper
 
             string passwordSalt = Convert.ToBase64String(buffer);
             string passwordHash = GetPasswordHash(password, passwordSalt);
-            return (password, passwordHash);
+            return (passwordSalt, passwordHash);
         }
 
         public static string GetPasswordHash(string password, string passwordSalt)

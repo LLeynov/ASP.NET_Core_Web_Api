@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 namespace EmployeeService.Data
 {
     [Table("AccountSessions")]
-    public class AccountSessions
+    public class AccountSession
     {
         [Key,DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int SessionId { get; set; }

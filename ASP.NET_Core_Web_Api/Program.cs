@@ -32,6 +32,8 @@ namespace ASP.NET_Core_Web_Api
 
             }).UseNLog(new NLogAspNetCoreOptions() { RemoveLoggerFactoryFilter = true });
 
+            builder.Services.AddSingleton<IAuthenticateService, AuthenticateService>();
+
             builder.Services.AddDbContext<EmployeeServiceDbContext>(options =>
             {
                 options.UseSqlServer(builder.Configuration["Settings:DatabaseOptions:ConnectionString"]);
