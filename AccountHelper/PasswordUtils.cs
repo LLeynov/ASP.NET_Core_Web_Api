@@ -9,7 +9,7 @@ namespace AccountHelper
 {
     public static class PasswordUtils
     {
-        private const string SecretKey = "B=o1№#lO@D1m19SkuF10On!";
+        private const string SecretKey = "#VO2VA1234==12341234";
 
         public static (string passwordSalt, string passwordHash) CreatePasswordHash(string password)
         {
@@ -24,7 +24,7 @@ namespace AccountHelper
 
         public static string GetPasswordHash(string password, string passwordSalt)
         {
-            password = $"{password}.|.{passwordSalt}]122{SecretKey}";
+            password = $"{password}~{passwordSalt}~{SecretKey}";
             byte[] buffer = Encoding.UTF8.GetBytes(password);
 
             SHA512 sha512 = new SHA512Managed();

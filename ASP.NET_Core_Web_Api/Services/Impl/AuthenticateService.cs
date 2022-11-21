@@ -1,17 +1,17 @@
-﻿using AccountHelper;
-using ASP.NET_Core_Web_Api.Models.Dto;
+﻿using ASP.NET_Core_Web_Api.Models.Dto;
 using ASP.NET_Core_Web_Api.Models.Requests;
 using EmployeeService.Data;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
+using ASP.NET_Core_Web_Api.Utils;
 
 namespace ASP.NET_Core_Web_Api.Services.Impl
 {
     public class AuthenticateService : IAuthenticateService
     {
-        public const string SecretKey = "B=o1№#lO@D1m19SkuF10On!";
+        public const string SecretKey = "#VO2VA1234==12341234";
 
         private readonly Dictionary<string, SessionDto> _sessions = new Dictionary<string, SessionDto>();
 
@@ -21,7 +21,6 @@ namespace ASP.NET_Core_Web_Api.Services.Impl
         public AuthenticateService(IServiceScopeFactory serviceScopeFactory)
         {
             _serviceScopeFactory = serviceScopeFactory;
-
         }
 
         public AuthenticationResponse Login(AuthenticationRequest authenticationRequest)
@@ -31,15 +30,16 @@ namespace ASP.NET_Core_Web_Api.Services.Impl
 
             Account account = !string.IsNullOrWhiteSpace(authenticationRequest.Login) ?
                 FindAccountByLogin(context, authenticationRequest.Login) : null;
+            
             if (account == null)
             {
                 return new AuthenticationResponse
                 {
                     Status = AuthenticationStatus.UserNotFound
                 };
-            }
-            
-            if(!PasswordUtils.VerifyPassword(authenticationRequest.Password,account.PasswordSalt,account.PasswordSalt))
+            }  
+
+            if (!PasswordUtils.VerifyPassword(authenticationRequest.Password, account.PasswordSalt, account.PasswordHash))
             {
                 return new AuthenticationResponse
                 {
@@ -55,7 +55,7 @@ namespace ASP.NET_Core_Web_Api.Services.Impl
                 TimeClosed = DateTime.Now,
                 IsClosed = false,
             };
-            
+
             context.AccountSessions.Add(session);
             context.SaveChanges();
 
@@ -65,16 +65,15 @@ namespace ASP.NET_Core_Web_Api.Services.Impl
                 _sessions[session.SessionToken] = sessionDto;
             }
 
-            return new AuthenticationResponse { Status = AuthenticationStatus.Success,Session = sessionDto};
-
+            return new AuthenticationResponse { Status = AuthenticationStatus.Success, Session = sessionDto };
         }
 
-        private SessionDto GetSessionDto(Account account,AccountSession accountSessions)
+        public SessionDto GetSessionDto(Account account, AccountSession accountSession)
         {
             return new SessionDto
             {
-                SessionId = accountSessions.SessionId,
-                SessionToken = accountSessions.SessionToken,
+                SessionId = accountSession.SessionId,
+                SessionToken = accountSession.SessionToken,
                 Account = new AccountDto
                 {
                     AccountId = account.AccountId,
@@ -101,7 +100,7 @@ namespace ASP.NET_Core_Web_Api.Services.Impl
                         new Claim(ClaimTypes.Name,account.EMail)
                     }),
                 Expires = DateTime.UtcNow.AddMinutes(15),
-                SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.EcdsaSha512Signature)
+                SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
             };
             SecurityToken token = tokenHandler.CreateToken(tokenDescriptor);
             return tokenHandler.WriteToken(token);
@@ -114,7 +113,38 @@ namespace ASP.NET_Core_Web_Api.Services.Impl
 
         public SessionDto GetSession(string sessionToken)
         {
-            throw new NotImplementedException();
+            SessionDto sessionDto;
+
+            lock (_sessions)
+            {
+                _sessions.TryGetValue(sessionToken, out sessionDto);
+            }
+
+            if (sessionDto == null)
+            {
+                using IServiceScope scope = _serviceScopeFactory.CreateScope();
+                EmployeeServiceDbContext context = scope.ServiceProvider.GetRequiredService<EmployeeServiceDbContext>();
+
+                AccountSession session =
+                    context.AccountSessions.
+                        FirstOrDefault(item => item.SessionToken == sessionToken);
+
+                if (session == null)
+                    return null;
+
+                Account account = context.Accounts.FirstOrDefault(item => item.AccountId == session.AccountId);
+                
+                sessionDto = GetSessionDto(account, session);
+
+                if (sessionDto != null)
+                {
+                    lock (_sessions)
+                    {
+                        _sessions[sessionToken] = sessionDto;
+                    }
+                }
+            }
+            return sessionDto;
         }
     }
 }

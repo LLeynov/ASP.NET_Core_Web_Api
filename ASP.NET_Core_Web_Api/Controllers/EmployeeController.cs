@@ -3,11 +3,13 @@ using ASP.NET_Core_Web_Api.Services;
 using ASP.NET_Core_Web_Api.Services.Impl;
 using Azure.Core;
 using EmployeeService.Data;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
 namespace ASP.NET_Core_Web_Api.Controllers
 {
+    [Authorize]
     [Route("api/[controller]")]
     [ApiController]
     public class EmployeeController : ControllerBase

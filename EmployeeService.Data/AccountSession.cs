@@ -26,6 +26,7 @@ namespace EmployeeService.Data
         [Column(TypeName = "datetime2")]
         public DateTime? TimeCreated { get; set; }
 
+
         [Column(TypeName = "datetime2")]
         public DateTime? TimeClosed { get; set; }
 
