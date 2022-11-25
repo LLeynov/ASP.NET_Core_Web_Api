@@ -1,0 +1,42 @@
+syntax = "proto3";
+
+option csharp_namespace = "ASPNETCoreWebApiProto";
+
+package ASPNETCoreWebApiProto;
+
+service DictionariesService{
+	
+	rpc CreateEmployeeType(CreateEmployeeTypeRequest) returns(CreateEmployeeTypeResponse);
+	rpc GetAllEmployeeTypes(GetAllEmployeeTypesRequest) returns(GetAllEmployeeTypesResponse);
+	rpc DeleteEmployeeType(DeleteEmployeeTypeRequest) returns(DeleteEmployeeTypeResponse);
+}
+
+message CreateEmployeeTypeRequest{
+	string description = 1;
+}
+
+message CreateEmployeeTypeResponse{
+	int32 id = 1;
+}
+
+message GetAllEmployeeTypesRequest{
+
+}
+
+message GetAllEmployeeTypesResponse{
+	repeated EmployeeType employeeTypes = 1;
+}
+
+message EmployeeType{
+	int32 id = 1;
+	string description = 2;
+}
+
+message DeleteEmployeeTypeRequest{
+	int32 id = 1;
+}
+
+message DeleteEmployeeTypeResponse{
+	
+}
+

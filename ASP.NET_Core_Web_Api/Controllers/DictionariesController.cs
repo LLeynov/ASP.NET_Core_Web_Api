@@ -28,8 +28,7 @@ namespace ASP.NET_Core_Web_Api.Controllers
                 {
                     Id = et.Id,
                     Description = et.Description
-                }
-            ).ToList());
+                }).ToList());
         }
 
 

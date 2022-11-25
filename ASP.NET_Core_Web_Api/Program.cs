@@ -1,9 +1,11 @@
+using System.Net;
 using System.Text;
 using ASP.NET_Core_Web_Api.Models;
 using ASP.NET_Core_Web_Api.Models.Requests;
 using ASP.NET_Core_Web_Api.Models.Validators;
 using ASP.NET_Core_Web_Api.Services;
 using ASP.NET_Core_Web_Api.Services.Impl;
+using ASP.NET_Core_Web_Api.Services.Impl.Grpc_Services;
 using EmployeeService.Data;
 using FluentValidation;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -23,7 +25,26 @@ namespace ASP.NET_Core_Web_Api
 
             var builder = WebApplication.CreateBuilder(args);
 
+            builder.WebHost.ConfigureKestrel(options =>
+            {
+                options.Listen(IPAddress.Any, 5001, listenOptions =>
+                {
+                    listenOptions.Protocols = Microsoft.AspNetCore.Server.Kestrel.Core.HttpProtocols.Http1AndHttp2;
+                    listenOptions.UseHttps(@"C:\Sertificate\testcerf.pfx", "12345");
+                });
+            });
+
+            #region Configure Services
+
             builder.Services.AddScoped<IValidator<AuthenticationRequest>, AuthenticationRequestValidator>();
+            builder.Services.AddSingleton<IAuthenticateService, AuthenticateService>();
+            builder.Services.AddScoped<IDepartmentRepository, DepartmentRepository>();
+            builder.Services.AddScoped<IEmployeeRepository, EmployeeRepository>();
+            builder.Services.AddScoped<IEmployeeTypeRepository, EmployeeTypeRepository>();
+
+            #endregion
+
+            #region Configure Logging
 
             builder.Services.AddHttpLogging(logging =>
             {
@@ -42,35 +63,45 @@ namespace ASP.NET_Core_Web_Api
 
             }).UseNLog(new NLogAspNetCoreOptions() { RemoveLoggerFactoryFilter = true });
 
+            #endregion
+
+            #region Configure gRPC
+
+            builder.Services.AddGrpc();
+
+            #endregion
+
+            #region Configure Authenticate
+
             builder.Services.AddAuthentication(x =>
-            {
-                x.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-                x.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-            })
-                .AddJwtBearer(x =>
-            {
-                x.RequireHttpsMetadata = false;
-                x.SaveToken = true;
-                x.TokenValidationParameters = new TokenValidationParameters
                 {
-                    ValidateIssuerSigningKey = true,
-                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(AuthenticateService.SecretKey)),
-                    ValidateIssuer = false,
-                    ValidateAudience = false,
-                    ClockSkew = TimeSpan.Zero
-                };
-            });
+                    x.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+                    x.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+                })
+                .AddJwtBearer(x =>
+                {
+                    x.RequireHttpsMetadata = false;
+                    x.SaveToken = true;
+                    x.TokenValidationParameters = new TokenValidationParameters
+                    {
+                        ValidateIssuerSigningKey = true,
+                        IssuerSigningKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(AuthenticateService.SecretKey)),
+                        ValidateIssuer = false,
+                        ValidateAudience = false,
+                        ClockSkew = TimeSpan.Zero
+                    };
+                });
 
-            builder.Services.AddSingleton<IAuthenticateService, AuthenticateService>();
+            #endregion
 
+            #region Configure EF DBContext Service
             builder.Services.AddDbContext<EmployeeServiceDbContext>(options =>
             {
                 options.UseSqlServer(builder.Configuration["Settings:DatabaseOptions:ConnectionString"]);
             });
 
-            builder.Services.AddScoped<IDepartmentRepository, DepartmentRepository>();
-            builder.Services.AddScoped<IEmployeeRepository, EmployeeRepository>();
-            builder.Services.AddScoped<IEmployeeTypeRepository, EmployeeTypeRepository>();
+
+            #endregion
 
 
             builder.Services.AddControllers();
@@ -117,10 +148,19 @@ namespace ASP.NET_Core_Web_Api
             app.UseRouting();
             app.UseAuthorization();
             app.UseAuthentication();
-
-            app.UseHttpLogging();
+            app.UseWhen(
+                ctx => ctx.Request.ContentType != "application/grpc",
+                builder =>
+            {
+                builder.UseHttpLogging();
+            });
 
             app.MapControllers();
+
+            app.UseEndpoints(endpoints =>
+            {
+                endpoints.MapGrpcService<DictionariesService>();
+            });
 
             app.Run();
 
